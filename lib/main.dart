@@ -46,8 +46,8 @@ class NestedReorderableLists extends StatefulWidget {
 }
 
 class _NestedReorderableListsState extends State<NestedReorderableLists> {
-  final List<String> redItems = ['Red Item 1', 'Red Item 2', 'Red Item 3'];
-  final List<String> blueItems = ['Blue Item 1', 'Blue Item 2', 'Blue Item 3'];
+  final List<String> redItems = ['Red Item 1', 'Red Item 2', 'Red Item 3', 'Red Item 4', 'Red Item 5', 'Red Item 6'];
+  final List<String> blueItems = ['Blue Item 1', 'Blue Item 2', 'Blue Item 3', 'Blue Item 4', 'Blue Item 5', 'Blue Item 6'];
   bool isRedExpanded = true;
   bool isBlueExpanded = true;
 
@@ -127,7 +127,7 @@ class _NestedReorderableListsState extends State<NestedReorderableLists> {
       color: color,
       child: ListTile(
         title: Text(text),
-        leading: ReorderableDragStartListener(
+        trailing: ReorderableDragStartListener(
           index: int.parse(key.substring(key.length - 1)),
           child: const Icon(Icons.drag_handle),
         ),
