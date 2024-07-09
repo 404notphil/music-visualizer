@@ -1,0 +1,6 @@
+{
+  "appTitle": "note_prompter_proto",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}
