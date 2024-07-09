@@ -18,7 +18,7 @@ void main() async {
   // SettingsController for changes, then passes it further down to the
   // SettingsView.
   runApp(
-  const MyApp2()
+  MyApp2()
   // MyApp(settingsController: settingsController)
   );
 }
@@ -38,7 +38,6 @@ class MyApp2 extends StatelessWidget {
   }
 }
 
-
 class NestedReorderableLists extends StatefulWidget {
   const NestedReorderableLists({Key? key}) : super(key: key);
 
@@ -47,74 +46,91 @@ class NestedReorderableLists extends StatefulWidget {
 }
 
 class _NestedReorderableListsState extends State<NestedReorderableLists> {
-  final List<String> redItems = ['Red Item 1', 'Red Item 2', 'Red Item 3', 'Red Item 4', 'Red Item 5', 'Red Item 6'];
-  final List<String> blueItems = ['Blue Item 1', 'Blue Item 2', 'Blue Item 3', 'Blue Item 4', 'Blue Item 5', 'Blue Item 6'];
+  final List<String> redItems = ['Red Item 1', 'Red Item 2', 'Red Item 3'];
+  final List<String> blueItems = ['Blue Item 1', 'Blue Item 2', 'Blue Item 3'];
+  bool isRedExpanded = true;
+  bool isBlueExpanded = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Nested Reorderable Lists')),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Container(
-              color: Colors.red.shade100,
-              padding: EdgeInsets.all(8),
-              child: Text('Red List', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      appBar: AppBar(title: const Text('Nested Reorderable Lists')),
+      body: SingleChildScrollView(
+        child: ExpansionPanelList(
+          expansionCallback: (int index, bool isExpanded) {
+            setState(() {
+              if (index == 0) {
+                isRedExpanded = isExpanded;
+              } else {
+                isBlueExpanded = isExpanded;
+              }
+            });
+          },
+          children: [
+            ExpansionPanel(
+              headerBuilder: (BuildContext context, bool isExpanded) {
+                return ListTile(
+                  tileColor: Colors.red.shade100,
+                  title: const Text('Red List', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                );
+              },
+              body: ReorderableListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: redItems.length,
+                itemBuilder: (context, index) {
+                  return buildListItem(redItems[index], Colors.red.shade200, 'red$index');
+                },
+                onReorder: (oldIndex, newIndex) {
+                  setState(() {
+                    if (newIndex > oldIndex) newIndex--;
+                    final item = redItems.removeAt(oldIndex);
+                    redItems.insert(newIndex, item);
+                  });
+                },
+              ),
+              isExpanded: isRedExpanded,
             ),
-          ),
-          SliverReorderableList(
-            itemCount: redItems.length,
-            itemBuilder: (context, index) {
-              return ReorderableDragStartListener(
-                key: ValueKey('red${redItems[index]}'),
-                index: index,
-                child: Card(
-                  color: Colors.red.shade200,
-                  child: ListTile(
-                    title: Text(redItems[index]),
-                  ),
-                ),
-              );
-            },
-            onReorder: (oldIndex, newIndex) {
-              setState(() {
-                if (newIndex > oldIndex) newIndex--;
-                final item = redItems.removeAt(oldIndex);
-                redItems.insert(newIndex, item);
-              });
-            },
-          ),
-          SliverToBoxAdapter(
-            child: Container(
-              color: Colors.blue.shade100,
-              padding: EdgeInsets.all(8),
-              child: Text('Blue List', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ExpansionPanel(
+              headerBuilder: (BuildContext context, bool isExpanded) {
+                return ListTile(
+                  tileColor: Colors.blue.shade100,
+                  title: const Text('Blue List', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                );
+              },
+              body: ReorderableListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: blueItems.length,
+                itemBuilder: (context, index) {
+                  return buildListItem(blueItems[index], Colors.blue.shade200, 'blue$index');
+                },
+                onReorder: (oldIndex, newIndex) {
+                  setState(() {
+                    if (newIndex > oldIndex) newIndex--;
+                    final item = blueItems.removeAt(oldIndex);
+                    blueItems.insert(newIndex, item);
+                  });
+                },
+              ),
+              isExpanded: isBlueExpanded,
             ),
-          ),
-          SliverReorderableList(
-            itemCount: blueItems.length,
-            itemBuilder: (context, index) {
-              return ReorderableDragStartListener(
-                key: ValueKey('blue${blueItems[index]}'),
-                index: index,
-                child: Card(
-                  color: Colors.blue.shade200,
-                  child: ListTile(
-                    title: Text(blueItems[index]),
-                  ),
-                ),
-              );
-            },
-            onReorder: (oldIndex, newIndex) {
-              setState(() {
-                if (newIndex > oldIndex) newIndex--;
-                final item = blueItems.removeAt(oldIndex);
-                blueItems.insert(newIndex, item);
-              });
-            },
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildListItem(String text, Color color, String key) {
+    return Card(
+      key: ValueKey(key),
+      color: color,
+      child: ListTile(
+        title: Text(text),
+        leading: ReorderableDragStartListener(
+          index: int.parse(key.substring(key.length - 1)),
+          child: const Icon(Icons.drag_handle),
+        ),
       ),
     );
   }
